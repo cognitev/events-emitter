@@ -1,0 +1,6 @@
+*venv
+*.pyc
+.vscode
+events_emitter/settings.py
+*.sqlite3
+**/__pycache/**

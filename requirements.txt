@@ -1,0 +1,5 @@
+Django==3.0.3
+flake8==3.7.9
+yapf==0.29.0
+mysqlclient==1.4.6
+django-prometheus==2.0.0
