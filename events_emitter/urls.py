@@ -14,8 +14,29 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.conf.urls import url, include
+from tastypie.resources import ModelResource
+from events_emitter.models import BusinessRules, EventsDependencies
+
+
+class BusinessRulesResource(ModelResource):
+    class Meta:
+        queryset = BusinessRules.objects.all()
+        resource_name = 'business_rule'
+
+
+class EventsDependenciesResource(ModelResource):
+    class Meta:
+        queryset = EventsDependencies.objects.all()
+        resource_name = 'events_dependency'
+
+
+business_rule_resource = BusinessRulesResource()
+event_dependency_resource = EventsDependenciesResource()
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    url('admin/', admin.site.urls),
+    url(r'^api/', include(business_rule_resource.urls)),
+    url(r'^api/', include(event_dependency_resource.urls)),
 ]
