@@ -1,0 +1,18 @@
+language: python
+python:
+  - "3.6"
+
+services:
+  - mysql
+
+before_install:
+  - mysql -e 'CREATE DATABASE events_emitter_testing;'
+
+install:
+  - pip install -r requirements.txt
+
+script:
+  - cp events_emitter/example-settings.py events_emitter/settings.py
+  - flake8
+  - python manage.py migrate
+  - python manage.py test
