@@ -7,3 +7,4 @@ events_emitter/settings.py
 .env
 celerybeat-schedule
 staticfiles/
+**/__pycache/**
