@@ -77,7 +77,7 @@ def proccess_expression(expression, event_name, rules_res):
     logger.info(f"start evaluate expression '{expression}' ")
     try:
         eval_expression = eval(expression, rules_res)
-        fire_action_pubsub(event_name, {'event': event_name})
+        fire_action_pubsub(event_name, {"event": event_name})
         logger.info(f"finish evaluate expression '{expression}' with result {eval_expression}")
     except Exception as e:
         logger.error(f"can't evaluate expression '{expression}' with error {e}")

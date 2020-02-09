@@ -8,13 +8,9 @@ services:
 
 env:
   global:
-    - DOCKER_REPO="gcr.io/extended-web-217714"
     - PROJECT="events-emitter"
 
 before_install:
-  - echo "***************"
-  - echo $TRAVIS_BRANCH, $TRAVIS_PULL_REQUEST, $DOCKER_REPO, $PROJECT, $PROJECT_IMG, $TRAVIS_BUILD_NUMBER
-  - echo "***************"
   - mysql -e 'CREATE DATABASE events_emitter_testing;'
 
 install:

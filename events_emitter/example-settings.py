@@ -31,7 +31,7 @@ SECRET_KEY = 'a_va9!658xfz86o*k-51o5)9_za)6=ou5curj0d@+=395zz@_x'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'events_emitter.middleware.HealthCheckMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -153,6 +154,9 @@ DATABASES = {
             'CHARSET': 'utf8',
             'COLLATION': 'utf8_general_ci',
         },
+        'OPTIONS': {
+            'connect_timeout': 3,
+        }
     }
 }
 

@@ -8,7 +8,7 @@ class BusinessRulesAdmin(admin.ModelAdmin):
 
 
 class EventsDependenciesAdmin(admin.ModelAdmin):
-    fields = ['dependency_experssion']
+    fields = ['dependency_experssion', 'event_name']
 
 
 admin.site.register(BusinessRules, BusinessRulesAdmin)

@@ -15,6 +15,7 @@ RUN apk del .build-deps
 ADD . /mc/events_emitter/
 RUN mv events_emitter/example-settings.py events_emitter/settings.py
 RUN python manage.py collectstatic --no-input
+RUN chmod +x ./run.sh
 
 ENTRYPOINT ["./run.sh"]
 CMD ["events_emitter"]
