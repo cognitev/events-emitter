@@ -20,3 +20,4 @@ class BusinessRules(models.Model):
 
 class EventsDependencies(models.Model):
     dependency_experssion = models.CharField(max_length=250, null=False)
+    event_name = models.CharField(max_length=200, null=False)

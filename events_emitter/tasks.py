@@ -66,18 +66,18 @@ def proccess_rules_res(result):
     result = {k: v for rule_res in result for k, v in rule_res.items()}
     expressions = EventsDependencies.objects.all()
     proccess_expression_list = [
-        proccess_expression.s(expression.dependency_experssion, result) for expression in expressions
+        proccess_expression.s(expression.dependency_experssion, expression.event_name, result) for expression in expressions # noqa
     ]
     proccess_expressions_group = group(proccess_expression_list)
     proccess_expressions_group.apply_async(queue=settings.EVENTS_EMITTER_QUEUE)
 
 
 @shared_task(ignore_result=True)
-def proccess_expression(expression, rules_res):
+def proccess_expression(expression, event_name, rules_res):
     logger.info(f"start evaluate expression '{expression}' ")
     try:
         eval_expression = eval(expression, rules_res)
-        fire_action_pubsub("TEST", {'event': 'Test'})
+        fire_action_pubsub(event_name, {'event': event_name})
         logger.info(f"finish evaluate expression '{expression}' with result {eval_expression}")
     except Exception as e:
         logger.error(f"can't evaluate expression '{expression}' with error {e}")
