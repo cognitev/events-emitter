@@ -4,8 +4,17 @@ python:
 
 services:
   - mysql
+  - docker
+
+env:
+  global:
+    - DOCKER_REPO="gcr.io/extended-web-217714"
+    - PROJECT="events-emitter"
 
 before_install:
+  - echo "***************"
+  - echo $TRAVIS_BRANCH, $TRAVIS_PULL_REQUEST, $DOCKER_REPO, $PROJECT, $PROJECT_IMG, $TRAVIS_BUILD_NUMBER
+  - echo "***************"
   - mysql -e 'CREATE DATABASE events_emitter_testing;'
 
 install:
@@ -16,3 +25,12 @@ script:
   - flake8
   - python manage.py migrate
   - python manage.py test
+
+daploy:
+  provider: script
+  script: bash deploy.sh
+  on:
+    all_branches: true
+    condition: $TRAVIS_BRANCH == "INS-4375-evaluate-rules" && $TRAVIS_PULL_REQUEST == "false"
+
+  

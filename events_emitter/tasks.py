@@ -23,7 +23,7 @@ Get business rules --> ---- proccess rule 2 ---- --> evaluate rules result with 
 """
 @shared_task
 def proccess_business_rules(*args, **kwargs):
-    rules = BusinessRules.objects.all()
+    rules = BusinessRules.objects.all() # noqa
     logger.info("start proccess business rules")
     proccess_rule_list = []
     for rule in rules:
@@ -64,7 +64,7 @@ def proccess_rule(rule, *args, **kwargs):
 def proccess_rules_res(result):
     logger.info(f"get rules result {result} and start proccess exprissions")
     result = {k: v for rule_res in result for k, v in rule_res.items()}
-    expressions = EventsDependencies.objects.all()
+    expressions = EventsDependencies.objects.all() # noqa
     proccess_expression_list = [
         proccess_expression.s(expression.dependency_experssion, expression.event_name, result) for expression in expressions # noqa
     ]
