@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.conf.urls import url, include
 from tastypie.resources import ModelResource
 from events_emitter.models import BusinessRules, EventsDependencies
+from django.utils.translation import ugettext_lazy
 
 
 class BusinessRulesResource(ModelResource):
@@ -40,3 +41,8 @@ urlpatterns = [
     url(r'^api/', include(business_rule_resource.urls)),
     url(r'^api/', include(event_dependency_resource.urls)),
 ]
+
+admin.site.site_header = ugettext_lazy('Events Emitter Dashboard')
+admin.site.index_title = ugettext_lazy('Business Events administration')
+admin.site.site_header = ugettext_lazy('Events Emitter')
+admin.site.site_title = ugettext_lazy('Events Emitter')
