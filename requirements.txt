@@ -1,5 +1,7 @@
 Django==2.0.1
 flake8==3.7.9
+Setuptools==40.7.1
+grpcio==1.14.1
 yapf==0.29.0
 mysqlclient==1.4.6
 django-prometheus==2.0.0
@@ -11,7 +13,7 @@ django-celery-beat==1.1.1
 redis==3.2.0
 #TODO use django-celery-results version not git
 #django-celery-results==1.0.1
-git+git://github.com/celery/django-celery-results.git@882aea93ee783537bcc409312a093f4207ef5da4
+https://github.com/celery/django-celery-results/archive/882aea93ee783537bcc409312a093f4207ef5da4/master.zip
 google-cloud-bigquery==1.23.1
 https://github.com/cognitev/eventful-django/archive/master.zip
 
