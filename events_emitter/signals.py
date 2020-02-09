@@ -6,10 +6,10 @@ logger = logging.getLogger(__name__)
 
 
 @receiver(pre_save, sender=EventsDependencies)
-def insta_campaign_update_status(sender, **kwargs):
+def validate_expression(sender, **kwargs):
     event_dependency_exp = kwargs['instance'].dependency_experssion
-    for or_experssion in event_dependency_exp.split('&'):
-        for business_event_id in or_experssion.split('||'):
+    for or_experssion in event_dependency_exp.split('and'):
+        for business_event_id in or_experssion.split('or'):
             business_event_id = int(business_event_id)
             BusinessRules.objects.get(id=business_event_id)
 
