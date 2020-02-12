@@ -18,3 +18,4 @@ google-cloud-bigquery==1.23.1
 https://github.com/cognitev/eventful-django/archive/master.zip
 mock==4.0.1
 django-environ==0.4.5
+six==1.13.0

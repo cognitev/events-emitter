@@ -48,7 +48,7 @@ def proccess_rule(rule, *args, **kwargs):
         time_series_type = FactoryEvent().create_event_class(settings.TIME_SERIES_TYPE)
         result = time_series_type.get_event_last_creation(rule.get('event_type'))
         for row in result:
-            event_last_time = datetime.now() - row.created_at
+            event_last_time = datetime.now() - row['created_at']
             event_duration = timedelta(**parse_str_to_timedelta(rule.get('duration')))
             rule_res = (rule.get('state') == 'ABSENT'
                         and event_last_time >= event_duration) or (rule.get('state') == 'PRESENT' # noqa
@@ -77,7 +77,8 @@ def proccess_expression(expression, event_name, rules_res):
     logger.info(f"start evaluate expression '{expression}' ")
     try:
         eval_expression = eval(expression, rules_res)
-        fire_action_pubsub(event_name, {"event": event_name})
-        logger.info(f"finish evaluate expression '{expression}' with result {eval_expression}")
+        if(eval_expression):
+            fire_action_pubsub(event_name, {"event": event_name})
+            logger.info(f"finish evaluate expression '{expression}' with result {eval_expression}")
     except Exception as e:
         logger.error(f"can't evaluate expression '{expression}' with error {e}")
