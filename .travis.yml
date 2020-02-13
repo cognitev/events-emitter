@@ -26,7 +26,5 @@ daploy:
   provider: script
   script: bash deploy.sh
   on:
-    all_branches: true
-    condition: $TRAVIS_BRANCH == "INS-4375-evaluate-rules" && $TRAVIS_PULL_REQUEST == "false"
-
+    branch: master
   
