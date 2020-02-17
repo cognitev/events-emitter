@@ -31,4 +31,9 @@ elif [ "$1" = "beat" ]; then
     echo
     celery beat -A events_emitter --loglevel=INFO -S django
 
+elif [ "$1" = "monitoring" ]; then
+  echo "Running celery prometheus exporter"
+  export BROKER_URL=`env | grep CELERY_BROKER_URL | sed 's/.*=//g'`
+  export CELERY_METRICS_URL=`env | grep CELERY_METRICS_URL | sed 's/.*=//g'`
+  celery-prometheus-exporter --enable-events --broker=$BROKER_URL --addr=$CELERY_METRICS_URL
 fi

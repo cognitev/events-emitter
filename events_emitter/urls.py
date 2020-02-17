@@ -45,6 +45,8 @@ urlpatterns = [
 ] + static(
     settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
+if settings.PROMETHEUS_ENABLE_FLAG:
+    urlpatterns += [url('', include('django_prometheus.urls'))]
 
 admin.site.site_header = ugettext_lazy('Events Emitter Dashboard')
 admin.site.index_title = ugettext_lazy('Business Events administration')

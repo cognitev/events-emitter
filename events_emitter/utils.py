@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_str_to_timedelta(timedelta_str):
+    logger.debug(f"timedelta str {timedelta_str}")
     if 'day' in timedelta_str:
         exp = re.compile(
             r'^(?P<days>[-\d]+) day[s]*, (?P<hours>\d+):(?P<minutes>\d+):(?P<seconds>\d[\.\d+]*)$')

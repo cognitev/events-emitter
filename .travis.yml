@@ -26,5 +26,5 @@ daploy:
   provider: script
   script: bash deploy.sh
   on:
-    branch: master
+    branch: INS-4375-evaluate-rules
   
