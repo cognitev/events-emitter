@@ -66,7 +66,7 @@ def proccess_rules_res(result):
     result = {k: v for rule_res in result for k, v in rule_res.items()}
     expressions = EventsDependencies.objects.all() # noqa
     proccess_expression_list = [
-        proccess_expression.s(expression.dependency_experssion, expression.event_name, result) for expression in expressions # noqa
+        proccess_expression.s(expression.dependency_experssion, expression.name, result) for expression in expressions # noqa
     ]
     proccess_expressions_group = group(proccess_expression_list)
     proccess_expressions_group.apply_async(queue=settings.EVENTS_EMITTER_QUEUE)
