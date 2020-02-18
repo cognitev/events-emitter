@@ -4,6 +4,11 @@ python:
 
 services:
   - mysql
+  - docker
+
+env:
+  global:
+    - PROJECT="events-emitter"
 
 before_install:
   - mysql -e 'CREATE DATABASE events_emitter_testing;'
@@ -16,3 +21,10 @@ script:
   - flake8
   - python manage.py migrate
   - python manage.py test
+
+daploy:
+  provider: script
+  script: bash deploy.sh
+  on:
+    branch: INS-4375-evaluate-rules
+  

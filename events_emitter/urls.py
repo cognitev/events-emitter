@@ -18,6 +18,8 @@ from django.conf.urls import url, include
 from tastypie.resources import ModelResource
 from events_emitter.models import BusinessRules, EventsDependencies
 from django.utils.translation import ugettext_lazy
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 class BusinessRulesResource(ModelResource):
@@ -40,7 +42,11 @@ urlpatterns = [
     url('admin/', admin.site.urls),
     url(r'^api/', include(business_rule_resource.urls)),
     url(r'^api/', include(event_dependency_resource.urls)),
-]
+] + static(
+    settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+if settings.PROMETHEUS_ENABLE_FLAG:
+    urlpatterns += [url('', include('django_prometheus.urls'))]
 
 admin.site.site_header = ugettext_lazy('Events Emitter Dashboard')
 admin.site.index_title = ugettext_lazy('Business Events administration')

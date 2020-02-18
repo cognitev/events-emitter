@@ -11,15 +11,15 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-
+from django.utils.log import DEFAULT_LOGGING
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 getenv = os.getenv
 ENV = getenv('ENVIRONMENT', 'development')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -29,7 +29,7 @@ SECRET_KEY = 'a_va9!658xfz86o*k-51o5)9_za)6=ou5curj0d@+=395zz@_x'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [getenv('ALLOWED_HOSTS', '*')]
 
 
 # Application definition
@@ -41,10 +41,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'events_emitter'
+    'events_emitter',
+    'django_celery_results',
+    'django_celery_beat',
+    'django_prometheus',
+    'eventful_django',
 ]
 
 MIDDLEWARE = [
+    'events_emitter.middleware.HealthCheckMiddleware',
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'events_emitter.urls'
@@ -107,6 +114,32 @@ WSGI_APPLICATION = 'events_emitter.wsgi.application'
     )
 }.get(ENV)
 
+# Celery Broker
+(
+    CELERY_BROKER_URL,
+    CELERY_RESULT_BACKEND,
+    CELERY_ACCEPT_CONTENT,
+    CELERY_TASK_SERIALIZER,
+    CELERY_RESULT_SERIALIZER,
+    CELERY_IGNORE_RESULT,
+) = {
+    "production": (
+        getenv('CELERY_BROKER_URL'),
+        getenv('CELERY_RESULT_BACKEND', 'django-db'),
+        getenv('CELERY_ACCEPT_CONTENT', ['json']),
+        getenv('CELERY_TASK_SERIALIZER', 'json'),
+        getenv('CELERY_RESULT_SERIALIZER', 'json'),
+        getenv('CELERY_IGNORE_RESULT', False),
+    ),
+    "development": (
+        getenv('CELERY_BROKER_URL', 'redis://localhost:6379/'),
+        getenv('CELERY_RESULT_BACKEND', 'django-db'),
+        getenv('CELERY_ACCEPT_CONTENT', ['json']),
+        getenv('CELERY_TASK_SERIALIZER', 'json'),
+        getenv('CELERY_RESULT_SERIALIZER', 'json'),
+        getenv('CELERY_IGNORE_RESULT', False),
+    )
+}.get(ENV)
 
 DATABASES = {
     'default': {
@@ -122,6 +155,9 @@ DATABASES = {
             'CHARSET': 'utf8',
             'COLLATION': 'utf8_general_ci',
         },
+        'OPTIONS': {
+            'connect_timeout': 3,
+        }
     }
 }
 
@@ -159,7 +195,63 @@ USE_L10N = True
 USE_TZ = True
 
 
+def eval_bool(env_value, default=None):
+    return {'true': True, 'false': False}.get(str(env_value).lower(), default)
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-
+STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
+TABLE_NAME = getenv('TABLE_NAME')
+EVENTS_EMITTER_QUEUE = getenv('EVENTS_EMITTER_QUEUE', 'events_emitter')
+TIME_SERIES_DATASTORE = getenv('TIME_SERIES_DATASTORE')
+
+# logging configuration
+LOGLEVEL = getenv('LOGLEVEL', default='info').upper()
+LOGGING_CONFIG = None
+handlers_list = ['console']
+log_dict = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            # exact format is not important, this is the minimum information
+            'format': '%(levelname)s %(asctime)s [%(name)s:%(lineno)s] '
+                      '%(process)d %(thread)d %(message)s',
+        },
+        'django.server': DEFAULT_LOGGING['formatters']['django.server'],
+    },
+    'handlers': {
+        # console logs to stderr
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'default',
+        },
+        'django.server': DEFAULT_LOGGING['handlers']['django.server'],
+    },
+    'loggers': {
+        # default for all undefined Python modules
+        '': {
+            'level': 'WARNING',
+            'handlers': handlers_list,
+        },
+        # Our application code
+        'events_emitter': {
+            'level': LOGLEVEL,
+            'handlers': handlers_list,
+            # Avoid double logging because of root logger
+            'propagate': False,
+        },
+        'django.server': DEFAULT_LOGGING['loggers']['django.server'],
+    },
+}
+
+SENTRY_DSN = getenv('SENTRY_DSN')
+sentry_sdk.init(dsn=SENTRY_DSN, integrations=[DjangoIntegration()])
+
+PROMETHEUS_ENABLE_FLAG = eval_bool(getenv('PROMETHEUS_ENABLE_FLAG'), 'false')
+PUSHGATEWAY_PROMETHEUS_URL = getenv('PUSHGATEWAY_PROMETHEUS_URL')
+PUSHGATEWAY_PROMETHEUS_JOB_NAME = getenv('PUSHGATEWAY_PROMETHEUS_JOB_NAME')
+if PROMETHEUS_ENABLE_FLAG:
+    DATABASES['default']['ENGINE'] = 'django_prometheus.db.backends.mysql'

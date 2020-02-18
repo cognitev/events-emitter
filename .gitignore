@@ -4,3 +4,6 @@
 events_emitter/settings.py
 *.sqlite3
 **/__pycache/**
+.env
+celerybeat-schedule
+staticfiles/
