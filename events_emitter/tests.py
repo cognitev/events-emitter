@@ -27,13 +27,13 @@ class TestUtils(TestCase):
 class TestCeleryTasks(TestCase):
     @mock.patch("events_emitter.tasks.fire_action_pubsub")
     def test_proccess_expression(self, pubsub_mock):
-        proccess_expression('id1 or id2', 'event_name', {'id1': True, 'id2': False})
+        proccess_expression('id1 or id2', 'event_name', 1, {'id1': True, 'id2': False})
         self.assertEqual(pubsub_mock.call_count, 1)
 
-        proccess_expression('id1 and id2', 'event_name', {'id1': True, 'id2': False})
+        proccess_expression('id1 and id2', 'event_name', 1, {'id1': True, 'id2': False})
         self.assertEqual(pubsub_mock.call_count, 1)
 
-        proccess_expression('id1 and id2', 'event_name', {'id1': True, 'id2': True})
+        proccess_expression('id1 and id2', 'event_name', 1, {'id1': True, 'id2': True})
         self.assertEqual(pubsub_mock.call_count, 2)
 
     @mock.patch("events_emitter.events_factory.bigquery_time_series.BigQueryTimeSeries.get_event_last_creation", return_value=[]) # noqa
