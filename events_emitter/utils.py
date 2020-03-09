@@ -21,13 +21,17 @@ def parse_str_to_timedelta(timedelta_str):
 
 
 def fire_user_subscriptions(expression_id):
-    exp_inst = EventsDependencies.objects.get(id=1)
-    event_name = exp_inst.name
-    users = exp_inst.users_set
-    for user in users:
-        subs = UserSubscriptoins.filter(user_id=user.id, event_id=expression_id)
-        for subscription in subs:
-            send_notification_request(subscription, event_name)
+    try:
+        exp_inst = EventsDependencies.objects.get(id=expression_id)
+        event_name = exp_inst.name
+        users = exp_inst.users_set.all()
+        for user in users:
+            subs = UserSubscriptoins.objects.filter(user_id=user.name, event_id=expression_id)
+            for subscription in subs:
+                send_notification_request(subscription, event_name)
+
+    except Exception as e:
+        logger.exception(f'expression I-{expression_id} failed to publish event to subscribers due to: {e}')
 
 
 def send_notification_request(subscription, event_name):

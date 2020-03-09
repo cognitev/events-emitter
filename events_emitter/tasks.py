@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 
 from events_emitter.models import BusinessRules, EventsDependencies
-from events_emitter.utils import parse_str_to_timedelta, fire_action_pubsub
+from events_emitter.utils import parse_str_to_timedelta, fire_action_pubsub, fire_user_subscriptions
 from events_emitter.events_factory.factory_event import FactoryEvent
 
 logging.basicConfig()
@@ -81,6 +81,8 @@ def proccess_expression(expression, event_name, event_id, rules_res):
         eval_expression = eval(expression, rules_res)
         if(eval_expression):
             fire_action_pubsub(event_name, {"event": event_name})
+            fire_user_subscriptions(event_id)
+
         logger.info(f"finish evaluate expression '{expression}' with result {eval_expression}")
     except Exception as e:
         logger.error(f"can't evaluate expression '{expression}' with error {e}")
