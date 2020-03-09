@@ -36,3 +36,15 @@ class EventsDependencies(models.Model):
     def save(self, *args, **kwargs):
         self.validate_expression()
         super(EventsDependencies, self).save(*args, **kwargs)
+
+
+class Users(models.Model):
+    name = models.CharField(max_length=80, primary_key=True)
+    events = models.ManyToManyField(EventsDependencies)
+
+
+class UserSubscriptoins(models.Model):
+    webhook_url = models.URLField(max_length=200)
+    headers = models.TextField('Request Headers', null=True)
+    event_id = models.IntegerField(null=False)
+    user_id = models.CharField(max_length=80, null=False)

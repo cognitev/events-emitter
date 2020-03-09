@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from django.conf import settings
 
 from events_emitter.models import BusinessRules, EventsDependencies
-from events_emitter.utils import parse_str_to_timedelta, fire_action_pubsub
+from events_emitter.utils import parse_str_to_timedelta, fire_action_pubsub, fire_user_subscriptions
 from events_emitter.events_factory.factory_event import FactoryEvent
 
 logging.basicConfig()
@@ -68,19 +68,21 @@ def proccess_rules_res(result):
     result = {k: v for rule_res in result for k, v in rule_res.items()}
     expressions = EventsDependencies.objects.all()
     proccess_expression_list = [
-        proccess_expression.s(expression.dependency_experssion, expression.name, result) for expression in expressions # noqa
+        proccess_expression.s(expression.dependency_experssion, expression.name, expression.id, result) for expression in expressions # noqa
     ]
     proccess_expressions_group = group(proccess_expression_list)
     proccess_expressions_group.apply_async(queue=settings.EVENTS_EMITTER_QUEUE)
 
 
 @shared_task(ignore_result=True)
-def proccess_expression(expression, event_name, rules_res):
+def proccess_expression(expression, event_name, event_id, rules_res):
     logger.info(f"start evaluate expression '{expression}' with name {event_name}")
     try:
         eval_expression = eval(expression, rules_res)
         if(eval_expression):
             fire_action_pubsub(event_name, {"event": event_name})
+            fire_user_subscriptions(event_id)
+
         logger.info(f"finish evaluate expression '{expression}' with result {eval_expression}")
     except Exception as e:
         logger.error(f"can't evaluate expression '{expression}' with error {e}")
