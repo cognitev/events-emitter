@@ -1,4 +1,4 @@
-Django==2.0.1
+Django==2.2.13
 flake8==3.7.9
 Setuptools==40.7.1
 grpcio==1.14.1
