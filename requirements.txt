@@ -1,6 +1,6 @@
 Django==2.0.1
 flake8==3.7.9
-Setuptools==40.7.1
+Setuptools==65.5.1
 grpcio==1.14.1
 yapf==0.29.0
 mysqlclient==1.4.6
